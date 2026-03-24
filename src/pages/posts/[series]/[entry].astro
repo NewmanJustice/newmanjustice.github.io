@@ -1,0 +1,45 @@
+---
+import PostLayout from '@/layouts/PostLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', p => !p.data.draft);
+
+  const children = allPosts.filter(p => p.data.series);
+
+  return Promise.all(
+    children.map(async child => {
+      const seriesSlug = child.data.series!;
+      const entrySlug = child.slug.split('/')[1];
+
+      const parent = allPosts.find(p => p.slug === seriesSlug && !p.data.series);
+      const siblings = allPosts
+        .filter(p => p.data.series === seriesSlug)
+        .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+
+      return {
+        params: { series: seriesSlug, entry: entrySlug },
+        props: { post: child, parent, siblings },
+      };
+    })
+  );
+}
+
+interface Props {
+  post: CollectionEntry<'posts'>;
+  parent?: CollectionEntry<'posts'>;
+  siblings: CollectionEntry<'posts'>[];
+}
+
+const { post, parent, siblings } = Astro.props;
+const { Content } = await post.render();
+---
+
+<PostLayout
+  post={post}
+  seriesSlug={post.data.series}
+  seriesTitle={parent?.data.title}
+  siblings={siblings}
+>
+  <Content />
+</PostLayout>

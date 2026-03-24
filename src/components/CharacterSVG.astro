@@ -1,0 +1,133 @@
+---
+interface Props {
+  pose: 'thinking' | 'reading' | 'writing' | 'presenting';
+  index: number;
+}
+
+const { pose, index } = Astro.props;
+
+// Warm neutral fill colours cycling through stone tones
+const fills = ['#EDEAE3', '#E5E0D8', '#DDD8CF', '#D4CFC7'];
+const fill = fills[index % fills.length];
+---
+
+{pose === 'thinking' && (
+  <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="character-svg">
+    <!-- Body -->
+    <rect x="70" y="90" width="60" height="70" rx="8" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Head -->
+    <circle cx="100" cy="65" r="28" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Eyes -->
+    <circle cx="91" cy="60" r="3" fill="#57534E"/>
+    <circle cx="109" cy="60" r="3" fill="#57534E"/>
+    <!-- Thinking expression — slight smile -->
+    <path d="M93 72 Q100 78 107 72" stroke="#57534E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Left arm up, hand to chin -->
+    <path d="M70 110 Q50 100 48 88" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Hand at chin -->
+    <circle cx="48" cy="84" r="7" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Right arm down -->
+    <path d="M130 110 Q148 120 150 135" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Legs -->
+    <rect x="78" y="155" width="16" height="20" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <rect x="106" y="155" width="16" height="20" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Thought dots -->
+    <circle cx="118" cy="44" r="3" fill="#D4CFC7"/>
+    <circle cx="126" cy="36" r="4.5" fill="#D4CFC7"/>
+    <circle cx="136" cy="26" r="6" fill="#D4CFC7"/>
+  </svg>
+)}
+
+{pose === 'reading' && (
+  <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="character-svg">
+    <!-- Body -->
+    <rect x="70" y="90" width="60" height="70" rx="8" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Head -->
+    <circle cx="100" cy="65" r="28" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Eyes looking down -->
+    <ellipse cx="91" cy="63" rx="3" ry="2" fill="#57534E"/>
+    <ellipse cx="109" cy="63" rx="3" ry="2" fill="#57534E"/>
+    <!-- Concentration line -->
+    <path d="M93 73 Q100 77 107 73" stroke="#57534E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Book / document -->
+    <rect x="42" y="108" width="116" height="76" rx="4" fill="white" stroke="#A8A29E" stroke-width="1.5"/>
+    <rect x="42" y="108" width="58" height="76" rx="4 0 0 4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Text lines on book -->
+    <line x1="52" y1="128" x2="90" y2="128" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="52" y1="138" x2="90" y2="138" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="52" y1="148" x2="80" y2="148" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="110" y1="128" x2="148" y2="128" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="110" y1="138" x2="148" y2="138" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="110" y1="148" x2="138" y2="148" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Arms holding book -->
+    <path d="M70 115 Q55 118 42 135" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <path d="M130 115 Q145 118 158 135" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+  </svg>
+)}
+
+{pose === 'writing' && (
+  <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="character-svg">
+    <!-- Desk surface -->
+    <rect x="30" y="130" width="140" height="8" rx="2" fill="#D4CFC7"/>
+    <!-- Body -->
+    <rect x="70" y="75" width="60" height="60" rx="8" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Head -->
+    <circle cx="100" cy="52" r="26" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Eyes focused down -->
+    <ellipse cx="92" cy="49" rx="3" ry="2.5" fill="#57534E"/>
+    <ellipse cx="108" cy="49" rx="3" ry="2.5" fill="#57534E"/>
+    <!-- Focused expression -->
+    <path d="M94 60 Q100 63 106 60" stroke="#57534E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Left arm on desk -->
+    <path d="M70 100 Q55 112 50 130" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Right arm with pen -->
+    <path d="M130 100 Q145 112 148 128" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Pen -->
+    <rect x="144" y="122" width="4" height="18" rx="2" fill="#57534E" transform="rotate(15 146 131)"/>
+    <!-- Paper on desk -->
+    <rect x="50" y="132" width="90" height="40" rx="3" fill="white" stroke="#A8A29E" stroke-width="1"/>
+    <!-- Writing lines -->
+    <line x1="58" y1="144" x2="120" y2="144" stroke="#EDEAE3" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="58" y1="153" x2="110" y2="153" stroke="#EDEAE3" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="58" y1="162" x2="95" y2="162" stroke="#EDEAE3" stroke-width="1.5" stroke-linecap="round"/>
+  </svg>
+)}
+
+{pose === 'presenting' && (
+  <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="character-svg">
+    <!-- Body -->
+    <rect x="70" y="90" width="60" height="65" rx="8" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Head -->
+    <circle cx="100" cy="65" r="28" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Eyes -->
+    <circle cx="91" cy="60" r="3" fill="#57534E"/>
+    <circle cx="109" cy="60" r="3" fill="#57534E"/>
+    <!-- Speaking expression -->
+    <ellipse cx="100" cy="74" rx="6" ry="4" fill="#57534E"/>
+    <!-- Right arm raised pointing -->
+    <path d="M130 100 Q150 82 162 70" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Pointing hand -->
+    <circle cx="164" cy="67" r="7" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Left arm -->
+    <path d="M70 110 Q52 120 48 132" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Legs -->
+    <rect x="78" y="150" width="16" height="22" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <rect x="106" y="150" width="16" height="22" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Board / screen behind -->
+    <rect x="130" y="30" width="55" height="40" rx="3" fill="white" stroke="#A8A29E" stroke-width="1.5"/>
+    <rect x="130" y="30" width="55" height="12" rx="3" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <line x1="138" y1="52" x2="177" y2="52" stroke="#D4CFC7" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="138" y1="60" x2="170" y2="60" stroke="#D4CFC7" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Board stand -->
+    <line x1="157" y1="70" x2="157" y2="80" stroke="#A8A29E" stroke-width="2"/>
+  </svg>
+)}
+
+<style>
+  .character-svg {
+    width: 100%;
+    height: auto;
+    max-height: 160px;
+    display: block;
+  }
+</style>

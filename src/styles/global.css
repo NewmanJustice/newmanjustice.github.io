@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "Source Serif 4", Georgia, serif;
+  --font-mono: "DM Mono", "Fira Code", monospace;
+
+  --color-canvas: #F7F4EF;
+  --color-surface: #EDEAE3;
+  --color-border: #D4CFC7;
+  --color-ink: #1C1917;
+  --color-ink-muted: #78716C;
+  --color-accent: #92400E;
+  --color-accent-light: #FEF3C7;
+}
+
+html {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+::selection {
+  background-color: var(--color-accent-light);
+  color: var(--color-accent);
+}

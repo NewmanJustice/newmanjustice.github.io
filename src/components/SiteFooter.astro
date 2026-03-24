@@ -1,0 +1,64 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-name">NewmanJustice</p>
+    <p class="footer-copy">
+      &copy; {year} &mdash; the thoughts and ramblings of a principal developer at HMCTS
+    </p>
+    <a
+      href="https://github.com/NewmanJustice"
+      class="footer-link"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="GitHub profile"
+    >
+      GitHub
+    </a>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border);
+    margin-top: 6rem;
+    padding: 3rem 1.5rem;
+  }
+
+  .footer-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 2rem;
+  }
+
+  .footer-name {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 0;
+  }
+
+  .footer-copy {
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    margin: 0;
+    flex: 1;
+  }
+
+  .footer-link {
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .footer-link:hover {
+    color: var(--color-accent);
+  }
+</style>

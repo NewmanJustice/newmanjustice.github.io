@@ -1,0 +1,302 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection('posts', p => !p.data.draft);
+  const seriesPosts = allPosts.filter(p => !p.data.series);
+
+  return seriesPosts.map(parent => {
+    const children = allPosts
+      .filter(p => p.data.series === parent.slug)
+      .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
+
+    return {
+      params: { series: parent.slug },
+      props: { parent, children },
+    };
+  });
+}
+
+interface Props {
+  parent: CollectionEntry<'posts'>;
+  children: CollectionEntry<'posts'>[];
+}
+
+const { parent, children } = Astro.props;
+const { title, description, pubDate, tags } = parent.data;
+const { Content } = await parent.render();
+
+const dateFormatter = new Intl.DateTimeFormat('en-GB', {
+  day: 'numeric', month: 'long', year: 'numeric',
+});
+---
+
+<BaseLayout title={`${title} — NewmanJustice`} description={description}>
+  <div class="series-page">
+
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <div class="breadcrumb-inner">
+        <a href="/posts/">Writing</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{title}</span>
+      </div>
+    </nav>
+
+    <header class="series-header">
+      <div class="series-header-inner">
+        <div class="series-meta">
+          <time datetime={pubDate.toISOString()}>{dateFormatter.format(pubDate)}</time>
+          {tags.length > 0 && (
+            <ul class="tag-list" aria-label="Tags">
+              {tags.map(tag => <li class="tag">{tag}</li>)}
+            </ul>
+          )}
+        </div>
+        <h1 class="series-title">{title}</h1>
+        <p class="series-description">{description}</p>
+      </div>
+    </header>
+
+    <div class="series-body-wrap">
+      <div class="series-intro prose">
+        <Content />
+      </div>
+
+      {children.length > 0 && (
+        <aside class="entries-panel" aria-labelledby="entries-heading">
+          <h2 class="entries-heading" id="entries-heading">
+            Entries
+            <span class="entries-count">{children.length}</span>
+          </h2>
+          <ol class="entries-list">
+            {children.map((child, i) => {
+              const entrySlug = child.slug.split('/')[1];
+              return (
+                <li>
+                  <a href={`/posts/${parent.slug}/${entrySlug}/`} class="entry-link">
+                    <span class="entry-number">
+                      {String(child.data.seriesOrder ?? i + 1).padStart(2, '0')}
+                    </span>
+                    <span class="entry-body">
+                      <span class="entry-title">{child.data.title}</span>
+                      <span class="entry-desc">{child.data.description}</span>
+                    </span>
+                    <span class="entry-arrow" aria-hidden="true">&rarr;</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+        </aside>
+      )}
+    </div>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .series-page { min-height: 80vh; }
+
+  .breadcrumb {
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 1.5rem;
+  }
+  .breadcrumb-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-ink-muted);
+  }
+  .breadcrumb a {
+    color: var(--color-ink-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .breadcrumb a:hover { color: var(--color-accent); }
+
+  .series-header {
+    padding: 3.5rem 1.5rem 3rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .series-header-inner {
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  .series-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .series-meta time {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+  }
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    background-color: var(--color-surface);
+    color: var(--color-ink-muted);
+    padding: 0.2em 0.55em;
+    border-radius: 0.25rem;
+    border: 1px solid var(--color-border);
+  }
+  .series-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--color-ink);
+    margin: 0 0 1rem;
+    line-height: 1.1;
+  }
+  .series-description {
+    font-size: 1.125rem;
+    color: var(--color-ink-muted);
+    line-height: 1.6;
+    max-width: 52rem;
+    margin: 0;
+  }
+
+  .series-body-wrap {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 6rem;
+    display: grid;
+    grid-template-columns: 1fr 22rem;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  @media (max-width: 900px) {
+    .series-body-wrap {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .series-intro {
+    font-family: var(--font-body);
+    font-size: 1.0625rem;
+    line-height: 1.8;
+    color: var(--color-ink);
+  }
+  .series-intro :global(h2) {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 2.5rem 0 1rem;
+  }
+  .series-intro :global(p) { margin: 0 0 1.5rem; }
+  .series-intro :global(ul), .series-intro :global(ol) {
+    padding-left: 1.5rem;
+    margin: 0 0 1.5rem;
+  }
+  .series-intro :global(li) { margin-bottom: 0.5rem; }
+  .series-intro :global(a) { color: var(--color-accent); }
+
+  /* Entries panel */
+  .entries-panel {
+    position: sticky;
+    top: 5rem;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+  .entries-heading {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-ink-muted);
+    margin: 0 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .entries-count {
+    background-color: var(--color-border);
+    color: var(--color-ink-muted);
+    font-size: 0.7rem;
+    padding: 0.15em 0.5em;
+    border-radius: 1rem;
+  }
+  .entries-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .entry-link {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    transition: background-color 0.15s;
+  }
+  .entry-link:hover {
+    background-color: var(--color-canvas);
+  }
+  .entry-link:hover .entry-arrow {
+    transform: translateX(3px);
+    color: var(--color-accent);
+  }
+  .entry-number {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-ink-muted);
+    padding-top: 0.2rem;
+    flex-shrink: 0;
+    min-width: 1.5rem;
+  }
+  .entry-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+  .entry-title {
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.3;
+    transition: color 0.15s;
+  }
+  .entry-link:hover .entry-title { color: var(--color-accent); }
+  .entry-desc {
+    font-size: 0.8125rem;
+    color: var(--color-ink-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .entry-arrow {
+    font-size: 0.875rem;
+    color: var(--color-border);
+    padding-top: 0.2rem;
+    flex-shrink: 0;
+    transition: transform 0.2s ease, color 0.15s;
+  }
+</style>
