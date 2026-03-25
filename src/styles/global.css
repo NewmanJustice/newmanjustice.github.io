@@ -12,7 +12,11 @@
   --color-ink: #1C1917;
   --color-ink-muted: #78716C;
   --color-accent: #92400E;
-  --color-accent-light: #FEF3C7;
+  --color-accent-dark: #4A2810;
+  --color-accent-light: #F5E6C8;
+  --color-terracotta: #C2714F;
+  --color-olive: #9B9B72;
+  --color-gold: #A07830;
 }
 
 html {
@@ -22,6 +26,6 @@ html {
 }
 
 ::selection {
-  background-color: var(--color-accent-light);
-  color: var(--color-accent);
+  background-color: color-mix(in srgb, var(--color-gold) 18%, var(--color-canvas));
+  color: var(--color-gold);
 }
