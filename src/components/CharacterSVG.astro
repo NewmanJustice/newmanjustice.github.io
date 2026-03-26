@@ -1,6 +1,6 @@
 ---
 interface Props {
-  pose: 'thinking' | 'reading' | 'writing' | 'presenting';
+  pose: 'thinking' | 'reading' | 'writing' | 'presenting' | 'enforcement';
   index: number;
 }
 
@@ -116,6 +116,44 @@ const fill = fills[index % fills.length];
     <line x1="138" y1="60" x2="170" y2="60" stroke="#D4CFC7" stroke-width="1.5" stroke-linecap="round"/>
     <!-- Board stand -->
     <line x1="157" y1="70" x2="157" y2="80" stroke="#A8A29E" stroke-width="2"/>
+  </svg>
+)}
+
+{pose === 'enforcement' && (
+  <svg viewBox="0 0 200 180" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" class="character-svg">
+    <!-- Body -->
+    <rect x="70" y="90" width="60" height="70" rx="8" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Head -->
+    <circle cx="100" cy="65" r="28" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Eyes — firm, determined -->
+    <circle cx="91" cy="61" r="3" fill="#57534E"/>
+    <circle cx="109" cy="61" r="3" fill="#57534E"/>
+    <!-- Furrowed brows -->
+    <line x1="86" y1="54" x2="95" y2="57" stroke="#57534E" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="105" y1="57" x2="114" y2="54" stroke="#57534E" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Firm straight mouth -->
+    <line x1="93" y1="74" x2="107" y2="74" stroke="#57534E" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Right arm raised to hold scales -->
+    <path d="M130 108 Q146 90 148 70" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Hand -->
+    <circle cx="149" cy="66" r="6" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <!-- Scales: vertical post from hand -->
+    <line x1="149" y1="60" x2="149" y2="12" stroke="#57534E" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Scales: horizontal beam -->
+    <line x1="122" y1="12" x2="176" y2="12" stroke="#57534E" stroke-width="2" stroke-linecap="round"/>
+    <!-- Left pan string -->
+    <line x1="124" y1="12" x2="116" y2="32" stroke="#A8A29E" stroke-width="1" stroke-linecap="round"/>
+    <!-- Right pan string -->
+    <line x1="174" y1="12" x2="182" y2="32" stroke="#A8A29E" stroke-width="1" stroke-linecap="round"/>
+    <!-- Left pan -->
+    <path d="M108 32 Q116 39 124 32" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Right pan -->
+    <path d="M174 32 Q182 39 190 32" stroke="#A8A29E" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+    <!-- Left arm down -->
+    <path d="M70 108 Q52 118 50 132" stroke="#A8A29E" stroke-width="8" stroke-linecap="round" fill="none"/>
+    <!-- Legs -->
+    <rect x="78" y="155" width="16" height="20" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
+    <rect x="106" y="155" width="16" height="20" rx="4" fill={fill} stroke="#A8A29E" stroke-width="1.5"/>
   </svg>
 )}
 

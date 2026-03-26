@@ -24,7 +24,7 @@ All blog content lives in `src/content/posts/`. Posts use a **series model**:
 - `index.md` in that directory is the **series parent** — no `series` frontmatter, defines the series title/description.
 - Numbered child files (e.g. `01-what-is-mcp.md`) are **series entries** — they carry `series: "<parent-slug>"` and `seriesOrder: <n>` in their frontmatter.
 
-The content schema (`src/content/config.ts`) requires `title`, `description`, `pubDate` and supports `series`, `seriesOrder`, `tags`, `draft`.
+The content schema (`src/content/config.ts`) requires `title`, `description`, `pubDate` and supports `updatedDate`, `series`, `seriesOrder`, `tags`, `draft`.
 
 ### Routing
 
@@ -51,3 +51,7 @@ Tailwind v4 is configured CSS-first in `src/styles/global.css` via `@theme`. Des
 ### Deployment
 
 Pushing to `main` triggers GitHub Actions (`.github/workflows/deploy.yml`) which builds and deploys to GitHub Pages automatically.
+
+### Running on localhost
+
+The app should run on localhost port 3000

@@ -11,12 +11,15 @@
   --color-border: #D4CFC7;
   --color-ink: #1C1917;
   --color-ink-muted: #78716C;
-  --color-accent: #92400E;
-  --color-accent-dark: #4A2810;
-  --color-accent-light: #F5E6C8;
-  --color-terracotta: #C2714F;
-  --color-olive: #9B9B72;
-  --color-gold: #A07830;
+  --color-accent: #3D4A1E;
+  --color-accent-dark: #232B10;
+  --color-accent-light: #E8EDCC;
+  --color-terracotta: #5C6B2E;
+  --color-olive: #8A9A55;
+  --color-gold: #3D4A1E;
+  --color-chrome: #1E1B4B;
+  --color-chrome-ink: #E0E7FF;
+  --color-chrome-muted: #A5B4FC;
 }
 
 html {

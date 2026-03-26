@@ -11,6 +11,7 @@ const posts = defineCollection({
     seriesOrder: z.number().optional(),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
+    pose: z.enum(['thinking', 'reading', 'writing', 'presenting', 'enforcement']).optional(),
   }),
 });
 

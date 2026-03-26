@@ -48,7 +48,7 @@ type Pose = typeof poses[number];
           <ul class="character-grid" role="list">
             {seriesPosts.map((post, i) => {
               const seriesSlug = post.slug;
-              const pose: Pose = poses[i % poses.length];
+              const pose: Pose = (post.data.pose as Pose) ?? poses[i % poses.length];
               const count = childCounts[seriesSlug] ?? 0;
               return (
                 <li>
@@ -56,9 +56,11 @@ type Pose = typeof poses[number];
                     <div class="card-top">
                       <div class="thought-bubble">
                         <span class="bubble-title">{post.data.title}</span>
-                        <span class="bubble-meta">
-                          {count > 0 ? `${count} entr${count === 1 ? 'y' : 'ies'}` : 'Series intro'}
-                        </span>
+                        {count > 0 && (
+                          <span class="bubble-meta">
+                            {`${count} entr${count === 1 ? 'y' : 'ies'}`}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div class="thought-chain" aria-hidden="true">
