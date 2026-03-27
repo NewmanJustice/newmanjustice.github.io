@@ -6,29 +6,30 @@
   --font-body: "DM Mono", monospace;
   --font-mono: "DM Mono", monospace;
 
-  --color-canvas: #F7F4EF;
-  --color-surface: #EDEAE3;
-  --color-border: #D4CFC7;
-  --color-ink: #1C1917;
-  --color-ink-muted: #78716C;
-  --color-accent: #3D4A1E;
-  --color-accent-dark: #232B10;
-  --color-accent-light: #E8EDCC;
-  --color-terracotta: #5C6B2E;
-  --color-olive: #8A9A55;
-  --color-gold: #3D4A1E;
-  --color-chrome: #1E1B4B;
-  --color-chrome-ink: #E0E7FF;
-  --color-chrome-muted: #A5B4FC;
+  --color-desktop: #2A7034;
+  --color-desktop-dot: #1E5528;
+  --color-window-bg: #CCCCCC;
+  --color-titlebar: #000000;
+  --color-titlebar-text: #FFFFFF;
+  --color-menubar: #CCCCCC;
+  --color-border: #000000;
+  --color-ink: #000000;
+  --color-ink-muted: #444444;
+  --color-selected-bg: #000000;
+  --color-selected-text: #FFFFFF;
+  --color-canvas: #CCCCCC;
+  --color-surface: #DDDDDD;
+  --color-accent: #000000;
 }
 
 html {
-  background-color: var(--color-canvas);
+  background-color: var(--color-desktop);
   color: var(--color-ink);
   font-family: var(--font-body);
+  font-size: 13px;
 }
 
 ::selection {
-  background-color: color-mix(in srgb, var(--color-gold) 18%, var(--color-canvas));
-  color: var(--color-gold);
+  background-color: var(--color-selected-bg);
+  color: var(--color-selected-text);
 }

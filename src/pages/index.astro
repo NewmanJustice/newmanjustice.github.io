@@ -1,247 +1,429 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import CharacterSVG from '@/components/CharacterSVG.astro';
-import { url } from '@/lib/url';
+import DesktopLayout from '@/layouts/DesktopLayout.astro';
 import { getCollection } from 'astro:content';
 
 const allPosts = await getCollection('posts', p => !p.data.draft);
 
-// Series = parent posts (no series field)
-const seriesPosts = allPosts
+const seriesParents = allPosts
   .filter(p => !p.data.series)
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// Child count per series
-const childCounts: Record<string, number> = {};
+const childrenBySeries: Record<string, typeof allPosts> = {};
 for (const post of allPosts.filter(p => p.data.series)) {
   const s = post.data.series!;
-  childCounts[s] = (childCounts[s] ?? 0) + 1;
+  (childrenBySeries[s] ??= []).push(post);
+}
+for (const slug of Object.keys(childrenBySeries)) {
+  childrenBySeries[slug].sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0));
 }
 
-const poses = ['thinking', 'reading', 'writing', 'presenting'] as const;
-type Pose = typeof poses[number];
+const rendered = await Promise.all(
+  allPosts.map(async (post) => {
+    const { Content } = await post.render();
+    return { slug: post.slug.replace(/\//g, '-'), Content };
+  })
+);
 ---
 
-<BaseLayout
-  title="NewmanJustice — the thoughts and ramblings of a principal developer"
+<DesktopLayout
+  title="NewmanJustice — GEM Desktop"
   description="Technology in context. The thoughts and ramblings of a principal developer at HM Courts and Tribunals Service."
 >
-  <div class="home">
+  <div id="desktop">
 
-    <section class="hero">
-      <div class="hero-inner">
-        <p class="tagline">the thoughts and ramblings of&hellip;</p>
-        <h1 class="site-title">Newman<br/>Justice</h1>
-        <p class="strapline">
-          Principal Developer &middot; HMCTS &middot; Technology in context, and its impact on the craft of software engineering.
-        </p>
-      </div>
-    </section>
+    <div id="menu-bar">
+      <span class="gem-menu-item">DESK</span>
+      <span class="gem-menu-item">DATEI</span>
+      <span class="gem-menu-item">INDEX</span>
+      <span class="gem-menu-item">EXTRAS</span>
+    </div>
 
-    <section class="writing-section" aria-labelledby="writing-heading">
-      <div class="section-inner">
-        <h2 class="section-label" id="writing-heading">Writing</h2>
-
-        {seriesPosts.length === 0 ? (
-          <p class="empty-state">Nothing published yet. Watch this space.</p>
-        ) : (
-          <ul class="character-grid" role="list">
-            {seriesPosts.map((post, i) => {
-              const seriesSlug = post.slug;
-              const pose: Pose = (post.data.pose as Pose) ?? poses[i % poses.length];
-              const count = childCounts[seriesSlug] ?? 0;
-              return (
-                <li>
-                  <a href={url(`posts/${seriesSlug}/`)} class="character-card">
-                    <div class="card-top">
-                      <div class="thought-bubble">
-                        <span class="bubble-title">{post.data.title}</span>
-                        {count > 0 && (
-                          <span class="bubble-meta">
-                            {`${count} entr${count === 1 ? 'y' : 'ies'}`}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div class="thought-chain" aria-hidden="true">
-                      <span class="tc-dot tc-lg"></span>
-                      <span class="tc-dot tc-md"></span>
-                      <span class="tc-dot tc-sm"></span>
-                    </div>
-                    <div class="character-figure" aria-hidden="true">
-                      <CharacterSVG pose={pose} index={i} />
-                    </div>
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
+    <div id="desktop-area">
+      <div
+        id="hdd-icon"
+        data-hdd
+        class="gem-icon gem-hdd"
+        tabindex="0"
+        role="button"
+        aria-label="Hard Disk"
+        data-series-json={JSON.stringify(
+          seriesParents.map(p => ({
+            slug: p.slug,
+            title: p.data.title,
+            children: (childrenBySeries[p.slug] ?? []).map(c => ({
+              slug: c.slug.replace(/\//g, '-'),
+              title: c.data.title,
+            })),
+          }))
         )}
+      >
+        <div class="gem-icon-img" aria-hidden="true">
+          <svg width="48" height="40" viewBox="0 0 48 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="1" width="46" height="38" fill="var(--color-window-bg)" stroke="var(--color-border)" stroke-width="2"/>
+            <rect x="5" y="5" width="38" height="22" fill="var(--color-border)"/>
+            <circle cx="36" cy="32" r="3" fill="var(--color-border)"/>
+          </svg>
+        </div>
+        <span class="gem-icon-label">HARD DISK</span>
       </div>
-    </section>
+    </div>
+
+    <div id="modal-layer"></div>
 
   </div>
-</BaseLayout>
+
+  <div id="post-store" hidden>
+    {rendered.map(({ slug, Content }) => (
+      <div id={`post-html-${slug}`} hidden>
+        <Content />
+      </div>
+    ))}
+  </div>
+
+</DesktopLayout>
+
+<script is:inline>
+(function () {
+  let zCounter = 10;
+
+  function bringToFront(el) {
+    el.style.zIndex = ++zCounter;
+  }
+
+  function closeWindow(el) {
+    el.remove();
+  }
+
+  let windowCount = 0;
+  function cascadeOffset() {
+    return windowCount * 24;
+  }
+
+  function makeDraggable(win, handle) {
+    let startX, startY, startLeft, startTop;
+    handle.addEventListener('mousedown', function (e) {
+      e.preventDefault();
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = win.offsetLeft;
+      startTop = win.offsetTop;
+      function onMove(e) {
+        win.style.left = (startLeft + e.clientX - startX) + 'px';
+        win.style.top = (startTop + e.clientY - startY) + 'px';
+      }
+      function onUp() {
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+      }
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    });
+  }
+
+  function createWindow(title, contentEl) {
+    const offset = cascadeOffset();
+    windowCount++;
+    const win = document.createElement('div');
+    win.className = 'gem-window';
+    win.setAttribute('role', 'dialog');
+    win.setAttribute('aria-label', title);
+    win.style.cssText = 'position:absolute;left:' + (60 + offset) + 'px;top:' + (40 + offset) + 'px;min-width:280px;min-height:160px;background:var(--color-window-bg);border:2px solid var(--color-border);display:flex;flex-direction:column;pointer-events:auto;resize:both;overflow:hidden;';
+    bringToFront(win);
+
+    const titleBar = document.createElement('div');
+    titleBar.className = 'gem-titlebar';
+    titleBar.style.cssText = 'display:flex;align-items:center;background:var(--color-titlebar);color:var(--color-titlebar-text);padding:0 4px;height:20px;gap:4px;cursor:move;flex-shrink:0;';
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'gem-close';
+    closeBtn.setAttribute('aria-label', 'Close');
+    closeBtn.style.cssText = 'width:12px;height:12px;background:var(--color-window-bg);border:1px solid var(--color-border);padding:0;cursor:pointer;flex-shrink:0;';
+    closeBtn.addEventListener('click', function () { closeWindow(win); });
+
+    const titleText = document.createElement('span');
+    titleText.style.cssText = 'flex:1;font-size:11px;font-family:monospace;text-align:center;user-select:none;';
+    titleText.textContent = title;
+
+    titleBar.appendChild(closeBtn);
+    titleBar.appendChild(titleText);
+    win.appendChild(titleBar);
+    win.appendChild(contentEl);
+
+    win.addEventListener('mousedown', function () { bringToFront(win); });
+    win.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeWindow(win); }
+    });
+
+    makeDraggable(win, titleBar);
+
+    document.getElementById('modal-layer').appendChild(win);
+    win.focus();
+    return win;
+  }
+
+  function openDriveWindow() {
+    const hdd = document.querySelector('[data-hdd]');
+    const seriesData = JSON.parse(hdd.getAttribute('data-series-json') || '[]');
+
+    const body = document.createElement('div');
+    body.style.cssText = 'flex:1;padding:12px;display:flex;flex-wrap:wrap;gap:16px;align-content:flex-start;overflow:auto;';
+
+    for (const series of seriesData) {
+      const icon = document.createElement('div');
+      icon.className = 'gem-folder-icon';
+      icon.setAttribute('data-series', series.slug);
+      icon.setAttribute('tabindex', '0');
+      icon.setAttribute('role', 'button');
+      icon.setAttribute('aria-label', series.title);
+      icon.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default;padding:4px;width:64px;';
+      icon.innerHTML = '<svg width="40" height="32" viewBox="0 0 40 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="8" width="38" height="23" fill="var(--color-window-bg)" stroke="var(--color-border)" stroke-width="2"/><rect x="1" y="4" width="18" height="6" fill="var(--color-window-bg)" stroke="var(--color-border)" stroke-width="2"/></svg><span style="font-size:10px;font-family:monospace;text-align:center;word-break:break-word;max-width:60px;">' + series.title + '</span>';
+      icon.addEventListener('dblclick', function () { openFolderWindow(series.slug); });
+      icon.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { openFolderWindow(series.slug); }
+      });
+      body.appendChild(icon);
+    }
+
+    createWindow('HARD DISK', body);
+  }
+
+  function openFolderWindow(seriesSlug) {
+    const hdd = document.querySelector('[data-hdd]');
+    const seriesData = JSON.parse(hdd.getAttribute('data-series-json') || '[]');
+    const series = seriesData.find(function (s) { return s.slug === seriesSlug; });
+    if (!series) return;
+
+    const entries = series.children.length > 0 ? series.children : [{ slug: seriesSlug, title: series.title }];
+    const body = document.createElement('div');
+    body.style.cssText = 'flex:1;padding:12px;display:flex;flex-wrap:wrap;gap:16px;align-content:flex-start;overflow:auto;';
+
+    for (const entry of entries) {
+      const icon = document.createElement('div');
+      icon.className = 'gem-file-icon';
+      icon.setAttribute('data-slug', entry.slug);
+      icon.setAttribute('tabindex', '0');
+      icon.setAttribute('role', 'button');
+      icon.setAttribute('aria-label', entry.title);
+      icon.style.cssText = 'display:flex;flex-direction:column;align-items:center;gap:4px;cursor:default;padding:4px;width:64px;';
+      const safeName = (entry.slug.split('-').pop() || entry.slug).toUpperCase() + '.TXT';
+      icon.innerHTML = '<svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="22,1 31,10 31,39 1,39 1,1" fill="var(--color-window-bg)" stroke="var(--color-border)" stroke-width="2"/><polyline points="22,1 22,10 31,10" fill="none" stroke="var(--color-border)" stroke-width="2"/></svg><span style="font-size:10px;font-family:monospace;text-align:center;word-break:break-word;max-width:60px;">' + safeName + '</span>';
+      icon.addEventListener('dblclick', function () { openFileWindow(entry.slug); });
+      icon.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { openFileWindow(entry.slug); }
+      });
+      body.appendChild(icon);
+    }
+
+    createWindow(series.title.toUpperCase(), body);
+  }
+
+  function openFileWindow(slug) {
+    var storeEl = document.getElementById('post-html-' + slug);
+    var body = document.createElement('div');
+    body.className = 'gem-post-content';
+    body.style.cssText = 'flex:1;padding:24px 28px;overflow-y:auto;font-family:monospace;font-size:13px;line-height:1.7;background:var(--color-window-bg);';
+    if (storeEl) {
+      body.innerHTML = storeEl.innerHTML;
+    } else {
+      body.textContent = '(Post content not found)';
+    }
+    var title = slug.toUpperCase() + '.TXT';
+    var win = createWindow(title, body);
+    win.style.width = '620px';
+    win.style.height = '480px';
+  }
+
+  // Event wiring — script is inline at end of body, DOM is ready
+  var hdd = document.querySelector('[data-hdd]');
+  if (hdd) {
+    hdd.addEventListener('dblclick', openDriveWindow);
+    hdd.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { openDriveWindow(); }
+    });
+  }
+
+  var modalLayer = document.getElementById('modal-layer');
+  if (modalLayer) {
+    modalLayer.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        var win = e.target.closest('.gem-window');
+        if (win) { closeWindow(win); }
+      }
+    });
+  }
+})();
+</script>
 
 <style>
-  .home { min-height: 80vh; }
+  #desktop {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-desktop);
+    background-image: radial-gradient(var(--color-desktop-dot) 1px, transparent 1px);
+    background-size: 8px 8px;
+    font-family: var(--font-mono, monospace);
+    overflow: hidden;
+  }
 
-  /* Hero */
-  .hero {
-    padding: 5rem 1.5rem 4rem;
+  #menu-bar {
+    display: flex;
+    flex-shrink: 0;
+    background-color: var(--color-menubar);
+    border-bottom: 2px solid var(--color-border);
+    height: 24px;
+    align-items: center;
+    gap: 0;
+    z-index: 100;
+  }
+
+  .gem-menu-item {
+    padding: 0 12px;
+    font-size: 12px;
+    color: var(--color-ink);
+    cursor: default;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-right: 1px solid var(--color-border);
+    user-select: none;
+  }
+  .gem-menu-item:first-child {
+    border-left: 1px solid var(--color-border);
+  }
+
+  #desktop-area {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .gem-icon {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: default;
+    padding: 4px;
+    user-select: none;
+  }
+  .gem-icon:focus {
+    outline: none;
+  }
+  .gem-icon:focus .gem-icon-label,
+  .gem-icon.selected .gem-icon-label {
+    background-color: var(--color-selected-bg);
+    color: var(--color-selected-text);
+  }
+
+  .gem-icon-label {
+    font-size: 11px;
+    color: var(--color-titlebar-text);
+    background-color: transparent;
+    padding: 1px 3px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #modal-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  #modal-layer > * {
+    pointer-events: auto;
+  }
+</style>
+
+<style is:global>
+  .gem-post-content h1 {
+    font-size: 1.4em;
+    font-weight: 700;
+    margin: 0 0 0.8em;
+    padding-bottom: 0.4em;
+    border-bottom: 2px solid var(--color-border);
+  }
+  .gem-post-content h2 {
+    font-size: 1.2em;
+    font-weight: 700;
+    margin: 1.4em 0 0.6em;
+    padding-bottom: 0.3em;
     border-bottom: 1px solid var(--color-border);
   }
-  .hero-inner {
-    max-width: 72rem;
-    margin: 0 auto;
+  .gem-post-content h3 {
+    font-size: 1.05em;
+    font-weight: 700;
+    margin: 1.2em 0 0.4em;
   }
-  .tagline {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
-    margin: 0 0 1.25rem;
+  .gem-post-content p {
+    margin: 0 0 0.8em;
   }
-  .site-title {
-    font-family: var(--font-display);
-    font-size: clamp(3.5rem, 10vw, 8rem);
-    font-weight: 600;
-    line-height: 0.95;
-    letter-spacing: -0.03em;
+  .gem-post-content ul,
+  .gem-post-content ol {
+    margin: 0 0 0.8em;
+    padding-left: 1.6em;
+  }
+  .gem-post-content li {
+    margin-bottom: 0.3em;
+  }
+  .gem-post-content li::marker {
     color: var(--color-ink);
-    margin: 0 0 2rem;
   }
-  .strapline {
-    font-family: var(--font-body);
-    font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--color-ink-muted);
-    max-width: 42rem;
-    line-height: 1.6;
-    margin: 0;
+  .gem-post-content blockquote {
+    margin: 0.8em 0;
+    padding: 0.4em 0.8em;
+    border-left: 3px solid var(--color-border);
+    background: rgba(0,0,0,0.04);
   }
-
-  /* Writing section */
-  .writing-section {
-    padding: 4rem 1.5rem 6rem;
+  .gem-post-content code {
+    font-family: monospace;
+    font-size: 0.9em;
+    background: rgba(0,0,0,0.06);
+    padding: 0.1em 0.3em;
+    border: 1px solid rgba(0,0,0,0.1);
   }
-  .section-inner {
-    max-width: 72rem;
-    margin: 0 auto;
+  .gem-post-content pre {
+    margin: 0.8em 0;
+    padding: 0.8em;
+    background: rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.1);
+    overflow-x: auto;
   }
-  .section-label {
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-ink-muted);
-    margin: 0 0 3rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-olive);
+  .gem-post-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
   }
-  .empty-state {
-    color: var(--color-ink-muted);
+  .gem-post-content a {
+    color: var(--color-ink);
+    text-decoration: underline;
+  }
+  .gem-post-content strong {
+    font-weight: 700;
+  }
+  .gem-post-content em {
     font-style: italic;
   }
-
-  /* Character grid */
-  .character-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
-    gap: 2.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .gem-post-content hr {
+    border: none;
+    border-top: 1px solid var(--color-border);
+    margin: 1.2em 0;
   }
 
-  .character-card {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    text-decoration: none;
-    transition: transform 0.2s ease;
+  /* Visible scrollbar for GEM windows */
+  .gem-post-content::-webkit-scrollbar {
+    width: 16px;
   }
-  .character-card:hover {
-    transform: translateY(-4px);
+  .gem-post-content::-webkit-scrollbar-track {
+    background: var(--color-window-bg);
+    border-left: 1px solid var(--color-border);
   }
-  .character-card:focus-visible {
-    outline: 2px solid var(--color-accent);
-    outline-offset: 4px;
-    border-radius: 0.25rem;
-  }
-
-  .character-figure {
-    width: 100%;
-    padding: 0 1rem;
-    margin-top: -0.75rem;
-  }
-
-  /* Bubble sits right; left gap keeps it visually above the character's head */
-  .card-top {
-    display: flex;
-    justify-content: flex-end;
-    padding-right: 0.5rem;
-  }
-
-  /* Thought bubble — clean rounded rect, no pseudo-elements */
-  .thought-bubble {
-    width: 78%;
-    background-color: var(--color-surface);
+  .gem-post-content::-webkit-scrollbar-thumb {
+    background: var(--color-menubar);
     border: 1px solid var(--color-border);
-    border-radius: 1rem;
-    padding: 1rem 1.125rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-    transition: background-color 0.2s ease, border-color 0.2s ease;
-  }
-  .character-card:hover .thought-bubble {
-    background-color: var(--color-accent-dark);
-    border-color: var(--color-accent-dark);
-  }
-
-  /* Dot chain — large near bubble, small near head.
-     Centred at ~52% to sit above the character's head */
-  .thought-chain {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-left: 49%;
-    gap: 0.35rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0;
-  }
-  .tc-dot {
-    border-radius: 50%;
-    background-color: var(--color-border);
-    flex-shrink: 0;
-    transition: background-color 0.2s ease;
-  }
-  .tc-lg { width: 11px; height: 11px; }
-  .tc-md { width:  8px; height:  8px; }
-  .tc-sm { width:  5px; height:  5px; }
-
-  .character-card:hover .tc-dot {
-    background-color: var(--color-terracotta);
-  }
-
-  .bubble-title {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    line-height: 1.3;
-    transition: color 0.2s ease;
-  }
-  .bubble-meta {
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--color-ink-muted);
-    letter-spacing: 0.04em;
-    transition: color 0.2s ease;
-  }
-  .character-card:hover .bubble-title,
-  .character-card:hover .bubble-meta {
-    color: var(--color-canvas);
   }
 </style>
