@@ -61,10 +61,8 @@ The shift to agent-mediated access does not resolve the accessibility challenge.
 
 ## What Comes Next
 
-User Centred Design is not wrong. It is incomplete — and the gap is growing.
+The questions this shift raises do not yet have settled answers. What does agent-friendly service design actually look like in practice? What goes into a capability contract, and who is qualified to write one? How do you test a service for agent-readiness the way you currently test it for accessibility? These are open questions.
 
-The questions this shift raises do not yet have settled answers. What does agent-friendly service design actually look like in practice? What goes into a capability contract, and who is qualified to write one? How do you test a service for agent-readiness the way you currently test it for accessibility? These are open questions, and anyone who tells you otherwise is ahead of the evidence.
-
-But the absence of answers is not a reason to wait. The services being designed now will be operating in a world where agent-mediated access is commonplace. The architecture decisions being made today will determine whether those services are ready for it — or whether they quietly exclude a new category of user while appearing to serve everyone.
+The absence of answers is not a reason to wait. The services being designed now will be operating in a world where agent-mediated access is commonplace. The architecture decisions being made today will determine whether those services are ready for it — or whether they quietly exclude a new category of user while appearing to serve everyone.
 
 For government in particular, that is not an abstract concern. The obligation to serve citizens does not have a carve-out for technological transition. If the design profession does not start asking what agent-centred service design means — now, before the patterns are set — the decisions will get made anyway. They will just get made by default, in code, by people who may not know they are making them.
