@@ -22,7 +22,7 @@ This is collaborative. Work *with* the user, not *for* them.
 
 ### 1. Starting Point
 
-When invoked, check `/workspaces/learning_with_claude/learning-progress.md` for context on what's been learned recently. Ask:
+When invoked, check `src/content/posts/` for existing series and posts to understand what's already been written. Ask:
 - "What moment or insight do you want to capture?"
 - "What surprised you or stuck with you?"
 - If they're unsure, suggest angles based on the progress file.
@@ -93,6 +93,7 @@ Before considering a post done, verify:
 
 ## File Management
 
-- Save drafts to `/workspaces/learning_with_claude/blog/drafts/`
-- Final posts to `/workspaces/learning_with_claude/blog/posts/`
-- Use descriptive filenames: `2026-03-23-learning-with-oreilly-mcp.md`
+- Drafts: save to `src/content/posts/<series-slug>/drafts/` (or discuss with user if series is new)
+- Final posts: save to `src/content/posts/<series-slug>/<NN>-<slug>.md` following the existing series model
+- Use Astro frontmatter: `title`, `description`, `pubDate`, `series`, `seriesOrder`, `tags`
+- If starting a new series, also create `src/content/posts/<series-slug>/index.md` as the series parent
